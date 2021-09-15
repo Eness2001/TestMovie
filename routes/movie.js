@@ -17,7 +17,20 @@ router.get('/top10',(req,res)=>{
 
 
 router.get('/',(req,res)=>{
-    const promise =Movie.find({ });
+    const promise =Movie.aggregate([
+            {
+                $lookup: {
+                    from:'directors',
+                    localField:'director_id',
+                    foreignField:'_id',
+                    as:'director'
+                }
+            },
+            {
+                $unwind:'$director'
+            }
+
+            ]);
     promise.then((data)=>{
        res.json(data);
     }).catch((err)=>{
@@ -48,7 +61,7 @@ router.delete('/:movie_id',(req,res,next)=>{
     promise.then((movie)=>{
         if(!movie)
             next({message:'The movie is not found.'});
-        res.json(movie);
+        res.json({message:'Film silindi '});
     }).catch((err)=>{
         res.json(err);
     });
@@ -60,7 +73,7 @@ router.get('/:movie_id',(req,res,next)=>{
 
     promise.then((movie)=>{
         if(!movie)
-            next({message:'The movie is not found.'});
+            next({message:'The movie is not found.',code:99});// düzenle
         res.json(movie);
     }).catch((err)=>{
         res.json(err);
@@ -75,7 +88,7 @@ router.post('/',(req,res,next)=>{
     const promise =  movie.save();
 
     promise.then((data)=>{
-        res.json({status : 1});
+        res.json(data);
     }).catch((err)=>{
         res.json(err);
     });
@@ -94,7 +107,7 @@ router.get('/between/:start_year/:end_year', (req, res) => {
         res.json(data);
     }).catch((err) => {
         res.json(err);
-    })
+    });
 });
 
 

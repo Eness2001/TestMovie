@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 // Models
 const Director = require('../models/Direktor');
+const Movie = require("../models/Movie");
 
 router.post('/', (req, res, next) => {
     const director = new Director(req.body);
@@ -109,6 +110,36 @@ router.get('/:director_id',(req,res)=>{
 
     promise.then((data)=>{
         res.json(data);
+    }).catch((err)=>{
+        res.json(err);
+    });
+});
+
+router.put('/:director_id',(req,res,next)=>{
+    const promise = Director.findByIdAndUpdate(
+        req.params.director_id,
+        req.body,
+        {
+            new : true
+        }
+    );
+
+    promise.then((director)=>{
+        if(!director)
+            next({message:'The director is not found.', code:999});
+        res.json(director);
+    }).catch((err)=>{
+        res.json(err);
+    });
+});
+
+router.delete('/:director_id',(req,res,next)=>{
+    const promise = Director.findByIdAndRemove(req.params.director_id);
+
+    promise.then((diretor)=>{
+        if(!diretor)
+            next({message:'The director is not found.'});
+        res.json({message:'Yönetmen silindi'});
     }).catch((err)=>{
         res.json(err);
     });
